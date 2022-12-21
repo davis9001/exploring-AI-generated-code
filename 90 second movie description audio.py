@@ -3,6 +3,7 @@ import os
 import openai
 from dotenv import load_dotenv
 import boto3
+import pygame
 
 load_dotenv()
 
@@ -27,14 +28,15 @@ polly_client = boto3.Session(
 
 # Function to generate a 90-second video script for a movie using ChatGPT
 def generate_video_script(movie_name):
-  movie_script_prompt = f"Describe in exactly 4 paragraphs the plot of {movie_name}, please be very detailed without mentioning the actors real names or anything else outside of the plot."
+  movie_script_prompt = f"Please write 4 paragraphs from the perspective of the plot inside the movie {movie_name}."
   completion = openai.Completion.create(
     engine="text-davinci-002",
     prompt=movie_script_prompt,
-    max_tokens=1500,
-    n=1,
-    stop=None,
-    temperature=0.5)
+    max_tokens=1500)
+    # max_tokens=1500,
+    # n=1,
+    # stop=None,
+    # temperature=1)
   script = completion.choices[0].text
   print(f"Script: {script}")
   return script
@@ -58,6 +60,10 @@ movie_name = input("Enter the name of a movie: ")
 script = generate_video_script(movie_name)
 
 # Convert the script to audio file
-generate_audio(script, f"{movie_name} description.mp3", 'mp3')
+generate_audio(script, f"Movie Description Audio/{movie_name} description.mp3", 'mp3')
 
 print(f"Audio file saved as '{movie_name} description.mp3'.")
+
+pygame.mixer.init()
+pygame.mixer.music.load(f"Movie Description Audio/{movie_name} description.mp3")
+pygame.mixer.music.play()
